@@ -20,7 +20,7 @@
 | :--- | :--- | :--- | :--- | :--- |
 | **Raw Ingestion** | `src/ingestion/crossref.py` | Crossref REST API query parameters (`sample=25`, `filter`, `query.bibliographic`) | `data/raw/crossref_response.json`<br>`data/raw/crossref_records.json` (24 raw records) | Hoàn thành |
 | **Cleaning & Data Modeling** | `src/ingestion/cleaning.py` | Danh sách `List[PaperRecord]` từ raw records + `run_date` | `data/clean/papers_clean.csv`<br>`data/clean/papers_clean.json` (24 clean rows, enriched fields) | Hoàn thành |
-| **Quality & Freshness** | `src/observability/quality.py` | `clean_df`, `Settings` (cấu hình SLA ngưỡng `freshness_threshold_days=180`) | `data/quality/quality_report_baseline.json`<br>`data/quality/freshness_report.json` | Hoàn thành |
+| **Quality & Freshness** | `src/observability/quality.py` | `clean_df`, `Settings` (cấu hình SLA ngưỡng `freshness_threshold_days=180`) | `data/quality/baseline_quality_report.json`<br>`data/quality/freshness_report.json` | Hoàn thành |
 | **Reporting** | `src/observability/reporting.py` | `source_summary`, `metrics`, `quality`, `freshness` | `data/reports/phase1_report.md` | Hoàn thành |
 | **Baseline Orchestration** | `src/pipelines/phase1.py` | `core.config.Settings` | Pipeline Phase 1 hoàn chỉnh, tự động chạy 10 bước từ ingestion đến reporting | Hoàn thành |
 
@@ -36,7 +36,7 @@
 | :--- | :--- | :--- | :--- |
 | **Xây dựng module Ingestion từ Crossref API** | `src/ingestion/crossref.py` | Thu thập 24 bản ghi thô chuẩn định dạng `PaperRecord`, loại bỏ thẻ HTML/XML rác (`<jats:title>`) trong abstract | Kiểm tra file `data/raw/crossref_records.json` có đủ 24 records |
 | **Chuẩn hóa dữ liệu & Feature Engineering** | `src/ingestion/cleaning.py` | Tạo clean dataset không duplicate, bổ sung các trường tính toán: `age_days`, `summary_chars`, `text_for_embedding` | Kiểm tra file `data/clean/papers_clean.csv` và `papers_clean.json` (24 dòng, 0 duplicate) |
-| **Xây dựng bộ kiểm định Data Quality** | `src/observability/quality.py` (`run_data_quality_checks`) | Bộ kiểm định 5 quy tắc: `paper_id_not_null`, `paper_id_unique`, `title_not_null`, `summary_length_ok`, `min_rows >= 5` | `data/quality/quality_report_baseline.json` với `"success": true` |
+| **Xây dựng bộ kiểm định Data Quality** | `src/observability/quality.py` (`run_data_quality_checks`) | Bộ kiểm định 5 quy tắc: `paper_id_not_null`, `paper_id_unique`, `title_not_null`, `summary_length_ok`, `min_rows >= 5` | `data/quality/baseline_quality_report.json` với `"success": true` |
 | **Xây dựng báo cáo Freshness theo SLA** | `src/observability/quality.py` (`build_freshness_report`) | Báo cáo tuổi thọ dữ liệu: tính toán `max_age_days`, `avg_age_days`, tỷ lệ `stale_rows` so với ngưỡng SLA 180 ngày | `data/quality/freshness_report.json` với `"is_fresh": true` (tỷ lệ bài cũ 4.2% < 25%) |
 | **Tự động hóa toàn diện Baseline Pipeline** | `src/pipelines/phase1.py` | Điều phối luồng 10 bước độc lập, tự động xuất báo cáo tổng hợp Markdown | Chạy `python src/pipelines/phase1.py` thành công không lỗi |
 
@@ -72,7 +72,7 @@
 | Thành phần | Mô tả |
 | :--- | :--- |
 | **Input** | Tham số truy vấn Crossref API (`sample=25`, `filter=has-abstract:true`), file cấu hình `core.config.Settings` |
-| **Output** | `crossref_records.json`, `papers_clean.csv`, `papers_clean.json`, `quality_report_baseline.json`, `freshness_report.json`, `phase1_report.md` |
+| **Output** | `crossref_records.json`, `papers_clean.csv`, `papers_clean.json`, `baseline_quality_report.json`, `freshness_report.json`, `phase1_report.md` |
 | **Module phụ thuộc** | `core.config.load_settings` |
 | **Module sử dụng output** | `src/retrieval/index.py` (sử dụng `papers_clean.csv`/`json`), `src/evaluation/testset.py` (sử dụng clean dataframe để sinh test set) |
 | **Điều kiện lỗi cần xử lý** | API timeout, kết nối mạng gián đoạn, abstract rỗng, trường ngày tháng sai format `date-parts`, thẻ XML lồng trong abstract, lỗi ép kiểu boolean của NumPy khi ghi JSON |
@@ -137,7 +137,7 @@ Loading weights: 100%|███████████████████�
   ```
 - **Artifact/log liên quan:**
   - `data/clean/papers_clean.csv`
-  - `data/quality/quality_report_baseline.json`
+  - `data/quality/baseline_quality_report.json`
   - `data/quality/freshness_report.json`
   - `data/reports/phase1_report.md`
 
@@ -173,7 +173,7 @@ Loading weights: 100%|███████████████████�
      freshness_ok = bool((df["age_days"] <= settings.freshness_threshold_days).all())
      ```
   2. Thêm tham số `default=str` vào lời gọi `json.dump()` để phòng ngừa các đối tượng đặc biệt khác.
-- **Cách xác minh sau khi sửa:** Chạy lại `python src/pipelines/phase1.py`. Báo cáo `data/quality/quality_report_baseline.json` được ghi thành công với cấu trúc JSON chuẩn.
+- **Cách xác minh sau khi sửa:** Chạy lại `python src/pipelines/phase1.py`. Báo cáo `data/quality/baseline_quality_report.json` được ghi thành công với cấu trúc JSON chuẩn.
 - **Điều học được:** Khi làm việc với Pandas/NumPy, luôn phải kiểm soát kiểu dữ liệu tại ranh giới (interface boundary) xuất dữ liệu sang các định dạng chuẩn như JSON/YAML.
 
 ---

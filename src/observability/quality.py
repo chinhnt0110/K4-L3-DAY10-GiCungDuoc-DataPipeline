@@ -38,10 +38,14 @@ def run_data_quality_checks(df: pd.DataFrame, settings: Settings, report_name: s
         "freshness_ok": freshness_ok,
     }
 
-    # Ghi file với default=str
-    report_path = settings.paths.quality_dir / f"quality_report_{report_name}.json"
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(report_path, "w", encoding="utf-8") as f:
+    # Ghi file với default=str theo chuẩn config (baseline_quality_report.json) và backward-compatible
+    std_report_path = getattr(settings.paths, f"{report_name}_quality_report", settings.paths.quality_dir / f"{report_name}_quality_report.json")
+    compat_report_path = settings.paths.quality_dir / f"quality_report_{report_name}.json"
+    
+    std_report_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(std_report_path, "w", encoding="utf-8") as f:
+        json.dump(quality_report, f, ensure_ascii=False, indent=2, default=str)
+    with open(compat_report_path, "w", encoding="utf-8") as f:
         json.dump(quality_report, f, ensure_ascii=False, indent=2, default=str)
 
     return quality_report

@@ -1,0 +1,10 @@
+{
+  "run_date": "2026-09-26T05:03:09.792966",
+  "total_rows": 24,
+  "success": true,
+  "paper_id_not_null": true,
+  "paper_id_unique": true,
+  "title_not_null": true,
+  "summary_length_ok": true,
+  "freshness_ok": false
+}

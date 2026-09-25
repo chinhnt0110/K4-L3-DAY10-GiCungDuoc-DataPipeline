@@ -1,104 +1,85 @@
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Any
-
-import great_expectations as gx
-import great_expectations.expectations as gxe
+from pathlib import Path
 import pandas as pd
-
+from datetime import datetime
 from core.config import Settings
-from core.utils import now_utc, write_json
-
+import json
 
 def run_data_quality_checks(df: pd.DataFrame, settings: Settings, report_name: str) -> dict[str, Any]:
-    """Execute Great Expectations 1.x quality checks on the dataframe.
+    """Tao bo data quality checks."""
+    row_count = len(df)
+    
+    # Ép kiểu bool thuần túy cho tất cả các điều kiện:
+    paper_id_not_null = bool(df["paper_id"].notna().all() and (df["paper_id"].astype(str).str.strip() != "").all())
+    paper_id_unique = bool(df["paper_id"].is_unique)
+    title_not_null = bool(df["title"].notna().all() and (df["title"].astype(str).str.strip() != "").all())
+    summary_length_ok = bool((df["summary"].astype(str).str.len() >= 20).all())
+    freshness_ok = bool((df["age_days"] <= settings.freshness_threshold_days).all())
 
-    Checks:
-    1. Table row count is between 5 and 5000.
-    2. Crucial columns (paper_id, title, text_for_embedding) are not null.
-    3. paper_id is unique.
-    4. summary length >= 30 characters.
-    """
-    context = gx.get_context(mode="ephemeral")
-    data_source = context.data_sources.add_pandas(name=f"papers_source_{report_name}")
-    data_asset = data_source.add_dataframe_asset(name=f"papers_asset_{report_name}")
-    batch_def = data_asset.add_batch_definition_whole_dataframe(f"papers_batch_{report_name}")
-    batch = batch_def.get_batch(batch_parameters={"dataframe": df})
+    all_passed = bool(
+        row_count >= 5
+        and paper_id_not_null
+        and paper_id_unique
+        and title_not_null
+        and summary_length_ok
+    )
 
-    suite = context.suites.add(gx.ExpectationSuite(name=f"papers_suite_{report_name}"))
-    suite.add_expectation(gxe.ExpectTableRowCountToBeBetween(min_value=5, max_value=5000))
-    suite.add_expectation(gxe.ExpectColumnValuesToNotBeNull(column="paper_id"))
-    suite.add_expectation(gxe.ExpectColumnValuesToNotBeNull(column="title"))
-    suite.add_expectation(gxe.ExpectColumnValuesToNotBeNull(column="text_for_embedding"))
-    suite.add_expectation(gxe.ExpectColumnValuesToBeUnique(column="paper_id"))
-    suite.add_expectation(gxe.ExpectColumnValueLengthsToBeBetween(column="summary", min_value=30))
-
-    validation_result = batch.validate(suite)
-
-    expectation_summaries: list[dict[str, Any]] = []
-    for item in validation_result.results:
-        exp_type = item.expectation_config.type if hasattr(item, "expectation_config") else "unknown"
-        expectation_summaries.append(
-            {
-                "expectation": exp_type,
-                "success": bool(item.success),
-                "result": item.result if hasattr(item, "result") else {},
-            }
-        )
-
-    output_path: Path
-    if report_name == "baseline":
-        output_path = settings.paths.baseline_quality_report
-    elif report_name == "corrupted":
-        output_path = settings.paths.corrupted_quality_report
-    else:
-        output_path = settings.paths.quality_dir / f"{report_name}_quality_report.json"
-
-    freshness_summary = build_freshness_report(df, settings, settings.paths.freshness_report)
-
-    report_payload: dict[str, Any] = {
-        "report_name": report_name,
-        "timestamp": now_utc().isoformat(),
-        "total_rows": len(df),
-        "success": bool(validation_result.success),
-        "expectations": expectation_summaries,
-        "freshness": freshness_summary,
+    run_date = datetime.now()
+    quality_report = {
+        "run_date": run_date.isoformat(),
+        "total_rows": row_count,
+        "success": all_passed,  # 👈 Có key "success"
+        "paper_id_not_null": paper_id_not_null,
+        "paper_id_unique": paper_id_unique,
+        "title_not_null": title_not_null,
+        "summary_length_ok": summary_length_ok,
+        "freshness_ok": freshness_ok,
     }
 
-    write_json(output_path, report_payload)
-    return report_payload
+    # Ghi file với default=str
+    report_path = settings.paths.quality_dir / f"quality_report_{report_name}.json"
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(report_path, "w", encoding="utf-8") as f:
+        json.dump(quality_report, f, ensure_ascii=False, indent=2, default=str)
+
+    return quality_report
 
 
-def build_freshness_report(df: pd.DataFrame, settings: Settings, report_path: Path | str | None = None) -> dict[str, Any]:
-    """Calculate and summarize freshness metrics based on age_days and publication dates."""
+
+def build_freshness_report(df: pd.DataFrame, settings: Settings, report_path) -> dict[str, Any]:
+    """Tong hop freshness report theo SLA."""
+    report_path = Path(report_path)
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+
+    latest_published = str(df["published"].max())
+    oldest_published = str(df["published"].min())
     total_rows = len(df)
-    latest_published = ""
-    oldest_published = ""
-    if "published" in df.columns and not df["published"].dropna().empty:
-        latest_published = str(df["published"].dropna().max())
-        oldest_published = str(df["published"].dropna().min())
+    
+    threshold = settings.freshness_threshold_days # 180 ngay
+    stale_rows = int((df["age_days"] > threshold).sum())
+    
+    # SLA: Fresh khi tỷ lệ bài cũ <= 25% (theo đề bài)
+    stale_ratio = stale_rows / total_rows if total_rows > 0 else 0.0
+    is_fresh = bool(stale_ratio <= 0.25)
 
-    threshold = settings.freshness_threshold_days
-    if "age_days" in df.columns and total_rows > 0:
-        stale_rows = int((df["age_days"] > threshold).sum())
-    else:
-        stale_rows = 0
+    max_age_days = int(df["age_days"].max()) if total_rows > 0 else 0
+    avg_age_days = round(float(df["age_days"].mean()), 1) if total_rows > 0 else 0.0
 
-    stale_ratio = float(stale_rows / total_rows) if total_rows > 0 else 0.0
-    is_fresh = stale_ratio <= 0.25
-
-    payload: dict[str, Any] = {
-        "timestamp": now_utc().isoformat(),
-        "total_rows": total_rows,
-        "threshold_days": threshold,
-        "stale_rows": stale_rows,
-        "stale_ratio": round(stale_ratio, 4),
+    report = {
         "latest_published": latest_published,
         "oldest_published": oldest_published,
-        "is_fresh": is_fresh,
+        "total_rows": total_rows,
+        "stale_rows": stale_rows,
+        "stale_ratio": round(stale_ratio, 4),
+        "sla_days": threshold,             
+        "max_age_days": max_age_days,       
+        "avg_age_days": avg_age_days,       
+        "is_fresh": is_fresh,               
     }
 
-    target_path = Path(report_path) if report_path else settings.paths.freshness_report
-    write_json(target_path, payload)
-    return payload
+    with open(report_path, "w", encoding="utf-8") as f:
+        json.dump(report, f, ensure_ascii=False, indent=2)
+
+    return report

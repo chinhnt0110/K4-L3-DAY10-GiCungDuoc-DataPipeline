@@ -6,13 +6,13 @@
 
 | Thông tin         | Nội dung                  |
 | ------------------ | -------------------------- |
-| Họ và tên       | [Họ và tên]             |
-| MSSV               | [MSSV]                     |
-| Khóa/Lớp         | [K3 hoặc K4]              |
-| Tên nhóm         | [Tên hoặc mã nhóm]     |
+| Họ và tên       | Nguyễn Thị Chinh             |
+| MSSV               | 2A202602876                     |
+| Khóa/Lớp         | K4-L3A             |
+| Tên nhóm         | GiCungDuoc    |
 | Vai trò chính    | [Vai trò]                 |
-| Repository         | [Đường dẫn repository] |
-| Ngày hoàn thành | [YYYY-MM-DD]               |
+| Repository         | https://github.com/chinhnt0110/K4-L3-DAY10-GiCungDuoc-DataPipeline |
+| Ngày hoàn thành | 2026-09-26               |
 
 ## 2. Vai trò và phạm vi công việc
 

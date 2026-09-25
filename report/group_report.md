@@ -6,20 +6,17 @@
 
 | Thông tin         | Nội dung                  |
 | ------------------ | -------------------------- |
-| Khóa/Lớp         | [K3 hoặc K4]              |
-| Tên nhóm         | [Tên hoặc mã nhóm]     |
-| Repository         | [Đường dẫn repository] |
-| Ngày hoàn thành | [YYYY-MM-DD]               |
+| Khóa/Lớp         | K4-L3A             |
+| Tên nhóm         | GiCungDuoc    |
+| Repository         | https://github.com/chinhnt0110/K4-L3-DAY10-GiCungDuoc-DataPipeline |
+| Ngày hoàn thành | 2026-09-26               |
 
 ### Thành viên và phân công
 
 | STT | Họ và tên | MSSV | Vai trò chính | Module/deliverable sở hữu |
 | --: | --- | --- | --- | --- |
-| 1 | [Họ tên] | [MSSV] | [Vai trò] | [File, hàm hoặc artifact] |
-| 2 | [Họ tên] | [MSSV] | [Vai trò] | [File, hàm hoặc artifact] |
-| 3 | [Họ tên] | [MSSV] | [Vai trò] | [File, hàm hoặc artifact] |
-| 4 | [Nếu có] | [MSSV] | [Vai trò] | [File, hàm hoặc artifact] |
-| 5 | [Nếu có] | [MSSV] | [Vai trò] | [File, hàm hoặc artifact] |
+| 1 | Nguyễn Thị Chinh | 2A202602876 | [Vai trò] | [File, hàm hoặc artifact] |
+| 2 | Vũ Minh Hiếu | [MSSV] | [Vai trò] | [File, hàm hoặc artifact] |
 
 ## 2. Tóm tắt kết quả
 

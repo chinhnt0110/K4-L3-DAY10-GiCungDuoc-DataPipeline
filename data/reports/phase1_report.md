@@ -5,9 +5,9 @@
 - Source API: Crossref REST API
 ## 2. Retrieval/Evaluation Metrics
 - Retrieval Hit Rate: 1.0
-- Mean Token F1: 0.8
-- Judge Accuracy: 0.8
-- Mean Judge Score: 4.2
+- Mean Token F1: 1.0
+- Judge Accuracy: 1.0
+- Mean Judge Score: 5
 ## 3. Data Quality
 - Pass: True
 ## 4. Freshness

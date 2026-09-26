@@ -209,12 +209,12 @@ Loading weights: 100%|███████████████████�
 
 | Metric/signal | Baseline | Corrupted | Repaired | Nhận xét của cá nhân |
 | :--- | :---: | :---: | :---: | :--- |
-| `retrieval_hit_rate` | 1.0 | 0.7 | 1.0 | Baseline đạt độ bao phủ tuyệt đối (100% câu hỏi tìm thấy đúng tài liệu tham chiếu). Khi bị corrupt (mất title/summary hoặc sai ID), chỉ số này tụt dốc; sau repair khôi phục lại hoàn toàn. |
-| `mean_token_f1` | 0.8 | 0.2 - 0.4 | 0.8 | Câu trả lời của Agent ở baseline có độ trùng khớp từ vựng cao với câu trả lời chuẩn (80%). |
-| `judge_accuracy` | 0.8 | 0.2 - 0.3 | 0.8 | 80% câu trả lời được LLM Judge chấm đạt chuẩn nghiệp vụ ở baseline. |
-| `mean_judge_score` | 4.2 / 5.0 | 1.5 - 2.0 | 4.2 / 5.0 | Điểm số đánh giá chất lượng câu trả lời ở mức rất tốt (4.2/5). |
+| `retrieval_hit_rate` | 1.0 | 0.6 | 1.0 | Baseline đạt độ bao phủ tuyệt đối (100% câu hỏi tìm thấy đúng tài liệu tham chiếu). Khi bị corrupt (mất title/summary hoặc sai ID), chỉ số này tụt dốc; sau repair khôi phục lại hoàn toàn. |
+| `mean_token_f1` | 0.8 | 0.57 | 0.8 | Câu trả lời của Agent ở baseline có độ trùng khớp từ vựng cao với câu trả lời chuẩn (80%). |
+| `judge_accuracy` | 0.8 | 0.6 | 0.8 | 80% câu trả lời được LLM Judge chấm đạt chuẩn nghiệp vụ ở baseline. |
+| `mean_judge_score` | 4.2 | 3.2 | 4.2 | Điểm số đánh giá chất lượng câu trả lời ở mức rất tốt (4.2/5.0). |
 | `Data Quality checks` | Pass (`True`) | Fail (`False`) | Pass (`True`) | Baseline vượt qua 100% assertion (0 null, 0 duplicate, summary $\ge$ 20 chars). |
-| `Freshness status` | Fresh (`True`) | Stale | Fresh (`True`) | Tỷ lệ bài cũ chỉ 4.2% (1/24 bài), vượt xa yêu cầu SLA (tối đa 25% bài cũ). |
+| `Freshness status` | Fresh (`True`) | Fail (`False`) | Fresh (`True`) | Tỷ lệ bài cũ chỉ 4.2% (1/24 bài), vượt xa yêu cầu SLA (tối đa 25% bài cũ). |
 
 ### Kết luận từ số liệu
 

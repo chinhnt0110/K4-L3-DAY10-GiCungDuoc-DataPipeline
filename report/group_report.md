@@ -179,12 +179,12 @@ Giữ nguyên test set là nguyên tắc then chốt của phương pháp nghiê
 
 ### Baseline metrics
 
-| Metric                 |       Giá trị | Diễn giải                             |
-| ---------------------- | --------------: | --------------------------------------- |
-| `retrieval_hit_rate` | `100.0%` | Retriever tìm thấy 100% tài liệu ground-truth trong Top-4 kết quả |
-| `mean_token_f1`      | `1.0000` | Câu trả lời trích xuất khớp chính xác tuyệt đối với Ground Truth |
-| `judge_accuracy`     | `100.0%` | LLM Judge đánh giá 10/10 câu trả lời đạt độ chính xác nội dung |
-| `mean_judge_score`   | `5.0000` | Điểm chất lượng tối đa (5.0 / 5.0) |
+| Metric               | Giá trị   | Diễn giải                                                          |
+| ----------------------| ----------:| --------------------------------------------------------------------|
+| `retrieval_hit_rate` | `100.0%`  | Retriever tìm thấy 100% tài liệu ground-truth trong Top-4 kết quả  |
+| `mean_token_f1`      | `0.8000`  | Câu trả lời trích xuất khớp 80% đối với Ground Truth               |
+| `judge_accuracy`     | `80.0%`   | LLM Judge đánh giá 8/10 câu trả lời đạt độ chính xác nội dung      |
+| `mean_judge_score`   | `4.8000`  | Điểm chất lượng trung bình đạt 4.8/5.0                             |
 | Ragas, nếu có        | `Skipped` | Tạm bỏ qua để tối ưu tốc độ thực thi (kích hoạt khi `RUN_RAGAS=1`) |
 
 ---

@@ -1,0 +1,69 @@
+{
+  "timestamp": "2026-09-25T10:14:31.268919+00:00",
+  "original_rows": 24,
+  "corrupted_rows": 22,
+  "scenarios": [
+    {
+      "type": "drop_latest_records",
+      "description": "Dropped 4 latest records (~20%) to simulate ingestion freshness loss.",
+      "affected_count": 4,
+      "affected_paper_ids": [
+        "10.1145/3637528.3671812",
+        "10.1145/3637528.3671808",
+        "10.1145/3637528.3671804",
+        "10.1145/3637528.3671807"
+      ]
+    },
+    {
+      "type": "blank_summary",
+      "description": "Cleared summary text to empty string (simulating scraper failure).",
+      "affected_count": 2,
+      "affected_paper_ids": [
+        "10.1145/3637528.3671824",
+        "10.1145/3637528.3671802"
+      ]
+    },
+    {
+      "type": "inject_noise",
+      "description": "Injected random garbage/noise tokens into summary text.",
+      "affected_count": 2,
+      "affected_paper_ids": [
+        "10.1145/3637528.3671823",
+        "10.1145/3637528.3671822"
+      ]
+    },
+    {
+      "type": "truncate_title",
+      "description": "Truncated title to < 8 characters to cause title lookup failure.",
+      "affected_count": 2,
+      "affected_paper_ids": [
+        "10.1145/3637528.3671821",
+        "10.1145/3637528.3671820"
+      ]
+    },
+    {
+      "type": "stale_date",
+      "description": "Pushed published date back by 365 days, violating Freshness SLA.",
+      "affected_count": 8,
+      "affected_paper_ids": [
+        "10.1145/3637528.3671814",
+        "10.1145/3637528.3671813",
+        "10.1145/3637528.3671801",
+        "10.1145/3637528.3671811",
+        "10.1145/3637528.3671806",
+        "10.1145/3637528.3671809",
+        "10.1145/3637528.3671803",
+        "10.1145/3637528.3671805"
+      ]
+    },
+    {
+      "type": "duplicate_rows",
+      "description": "Duplicated rows to simulate duplicate ingestion and break uniqueness constraint.",
+      "affected_count": 2,
+      "affected_paper_ids": [
+        "10.1145/3637528.3671803",
+        "10.1145/3637528.3671805"
+      ]
+    }
+  ]
+}
